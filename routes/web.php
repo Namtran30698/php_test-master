@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\DishesController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -15,3 +17,4 @@ use App\Http\Controllers\OrderController;
 */
 
 Route::get('/', [OrderController::class, 'index']);
+Route::post('/dishes', [DishesController::class, 'index']);
