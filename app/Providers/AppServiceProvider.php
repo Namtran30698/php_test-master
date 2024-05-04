@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(
             \App\Repositories\Dishes\DishesRepositoryInterface::class,
-            \App\Repositories\Restaurants\DishesRepository::class
+            \App\Repositories\Dishes\DishesRepository::class
         );
     }
 

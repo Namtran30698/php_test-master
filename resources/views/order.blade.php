@@ -36,39 +36,41 @@
         </div>
         <div id="step3" :class="[currentStep == 3 ? 'show' : 'hide', 'tabcontent']">
             <div class="space-between" style="width: 50%;">
+                <h3>Please select a dish</h3>
+                <h3>Please enter no of servings</h3>
+            </div>
+
+            <div v-for="(addedDish, index) in addedDishes" class="space-between" style="width: 50%;">
                 <div>
-                    <h3>Please select a dish</h3>
-                    <select >
-                        <option>dish</option>
+                    <select v-model="addedDish.name" >
+                        <option :value="addedDish.name" :selected="true">@{{ addedDish.name }}</option>
+                        <option v-for="dish in remainingDishes" :value="dish.name" >@{{ dish.name }}</option>
                     </select>
                 </div>
                 <div>
-                    <h3>Please enter no of servings</h3>
-                    <input type="number" id="noServings">
+                    <input type="number" id="noOfServings" v-model="addedDishes[index].noOfServings">
                 </div>
             </div>
 
-            <button class="mt-20">+</button>
+            <button :class="[remainingDishes.length == 0 ? 'hide' : 'show', 'mt-20']" @click="addSelectDish">+</button>
         </div>
         <div id="preview" :class="[currentStep == 4 ? 'show' : 'hide', 'tabcontent']">
             <div class="space-between" style="width: 50%;">
                 <p>meal</p>
-                <p>lunch</p>
+                <p>@{{ mealName }}</p>
             </div>
             <div class="space-between" style="width: 50%;">
                 <p>No of people</p>
-                <p>3</p>
+                <p>@{{ numberPeople }}</p>
             </div>
             <div class="space-between" style="width: 50%;">
                 <p>Restaurant</p>
-                <p>Restaurant A</p>
+                <p>@{{ restaurantName }}</p>
             </div>
             <div class="space-between" style="width: 50%;">
                 <div>Dishes</div>
                 <div class="dishes">
-                    <p>dish A - 1</p>
-                    <p>dish B - 2</p>
-                    <p>dish C - 3</p>
+                    <p v-for="(addedDish, index) in addedDishes">@{{ addedDish.name }} - @{{ addedDish.noOfServings }}</p>
                 </div>
             </div>
         </div>
@@ -90,14 +92,36 @@
                 restaurants: {{ Js::from($restaurants) }},
                 numberPeople: 0,
                 mealId: null,
+                mealName: null,
+                restaurantName: null,
                 restaurantId: null,
+                dishes: [],
+                addedDishes: [],
+                remainingDishes: [],
             },
             computed: {
 
             },
 
             watch: {
-
+                mealId: function () {
+                    this.mealName = this.meals.filter(meal => meal.id == this.mealId)[0].name;
+                    this.getDishesData();
+                    this.addedDishes = [];
+                },
+                restaurantId: function () {
+                    this.restaurantName = this.restaurants.filter(restaurant => restaurant.id == this.restaurantId)[0].name;
+                    this.getDishesData();
+                    this.addedDishes = [];
+                },
+                addedDishes: {
+                    handler: function () {
+                        this.remainingDishes = this.dishes.filter(
+                            dish => !this.addedDishes.some(obj => obj.name === dish.name)
+                        );
+                    },
+                    deep: true
+                }
             },
             mounted() {
 
@@ -108,6 +132,23 @@
                 },
                 handlePrevious() {
                     this.currentStep = this.currentStep - 1;
+                },
+                getDishesData() {
+                    axios.post('/dishes', { 
+                        "mealId": this.mealId,
+                        "restaurantId": this.restaurantId,
+                    })
+                    .then((response) => {
+                        if (response.data.success) {
+                            this.dishes= this.remainingDishes = response.data.data;
+                        } else alert(response.data.message);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+                },
+                addSelectDish() {
+                    this.addedDishes.push({name: "", noOfServings: 1});
                 },
             }
         });
