@@ -229,13 +229,20 @@
                 },
                 handleSubmit() {
                     const dishesData = {
-                        mealId: this.mealId,
+                        meal_id: this.mealId,
                         numberPeople: this.numberPeople,
-                        restaurantId: this.restaurantId,
-                        dishes: this.addedDishes
+                        restaurant_id: this.restaurantId,
+                        dishes: JSON.stringify(this.addedDishes)
                     }
 
                     console.log(dishesData);
+                    axios.post('/order', dishesData)
+                    .then((response) => {
+                        alert(response.data.message);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
                 }
             }
         });

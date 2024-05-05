@@ -18,3 +18,4 @@ use App\Http\Controllers\DishesController;
 
 Route::get('/', [OrderController::class, 'index']);
 Route::post('/dishes', [DishesController::class, 'index']);
+Route::post('/order', [OrderController::class, 'store']);
